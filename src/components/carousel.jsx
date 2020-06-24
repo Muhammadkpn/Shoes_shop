@@ -16,7 +16,6 @@ const CarouselBar = (props) => {
             {props.contentSlider.map((item,index) => {
                 return (
                     <img src={item.images} alt={`slide-${index+1}`}/>
-
                 )
             })}
         </Slider>
