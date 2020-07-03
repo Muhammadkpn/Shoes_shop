@@ -32,8 +32,9 @@ class TransactionHistoryAdmin extends React.Component {
         Axios.get(`http://localhost:2000/transaction_history`)
         .then(res => {
             console.log(res.data)
+
+            //invoke action history when we going to transaction admin page
             this.props.History(res.data)
-            // this.setState({history: res.data})
         })
         .catch(err => console.log(err))
     }

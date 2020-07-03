@@ -5,3 +5,9 @@ export const History = (data) => {
         payload: data
     }
 }
+
+export const clearHistory = () =>{
+    return {
+        type: 'CLEAR_HISTORY'
+    }
+}

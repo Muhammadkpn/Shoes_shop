@@ -9,7 +9,7 @@ import {
 import { Link } from 'react-router-dom'
 import PersonIcon from '@material-ui/icons/Person';
 
-import { LogOut } from '../actions'
+import { LogOut, clearHistory } from '../actions'
 
 class Profile extends React.Component {
     constructor (props) {
@@ -33,6 +33,7 @@ class Profile extends React.Component {
         const {logOutError} = this.state
         localStorage.clear()
         this.props.LogOut()
+        this.props.clearHistory()
         this.setState({logOutError: !logOutError})    
     }
 
@@ -125,4 +126,4 @@ const mapStateToProps = (state) => {
     }
 }
 
-export default connect(mapStateToProps, { LogOut })(Profile)
+export default connect(mapStateToProps, { LogOut, clearHistory })(Profile)

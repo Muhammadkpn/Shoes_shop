@@ -49,8 +49,8 @@ class Login extends React.Component {
                // set global storage
                localStorage.setItem('id', res.data[0].id)
                 
-               // invoke action
-               this.props.LogIn(res.data[0])
+               // invoke action login every login
+               this.props.LogIn(res.data[0]) 
                 this.setState({loginError : false})
             }
         })
