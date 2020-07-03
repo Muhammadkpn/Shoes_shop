@@ -1,7 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
 import {BrowserRouter} from 'react-router-dom'
-<<<<<<< HEAD
 
 import "slick-carousel/slick/slick.css"; 
 import "slick-carousel/slick/slick-theme.css";
@@ -31,21 +30,5 @@ ReactDOM.render(
         </BrowserRouter>
     </Provider>
     ,document.getElementById('root')
-=======
 
-import "slick-carousel/slick/slick.css"; 
-import "slick-carousel/slick/slick-theme.css";
-
-// import component
-import App from './App'
-
-// import style
-import './index.css'
-
-ReactDOM.render(
-    <BrowserRouter>
-        <App/>
-    </BrowserRouter>
-    , document.getElementById('root')
->>>>>>> ea7d1397a5da6bd317f50bcfb54bd5361b2f281c
 )

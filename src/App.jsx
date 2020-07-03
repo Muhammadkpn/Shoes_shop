@@ -1,5 +1,4 @@
 import React from "react";
-<<<<<<< HEAD
 import Axios from 'axios'
 import { connect } from 'react-redux'
 import { Route, Switch } from 'react-router-dom'
@@ -67,37 +66,3 @@ const mapToProps = (state) =>{
 }
 
 export default connect(mapToProps, { LogIn, History })(App)
-=======
-
-import NavbarMaterial from "./components/navbar";
-import { Route } from "react-router-dom";
-import MultipleItems from "./components/carousel";
-import CarouselBar from "./components/carousel";
-import HomePage from "./pages/homepage";
-import Category from "./pages/category";
-import Profile from "./pages/profile";
-
-// import Home from "./pages/home";
-// import PageOne from "./pages/page-1";
-
-
-
-class App extends React.Component {
-  render() {
-    return (
-      <div>
-          <Route>
-            <NavbarMaterial/>
-            <Route path="/" component={HomePage} exact/>
-            <Route path="/category" component={Category} />
-            <Route path='/profile' component={Profile} />
-          </Route>
-        <div>
-        </div>
-      </div>
-    );
-  }
-}
-
-export default App;
->>>>>>> ea7d1397a5da6bd317f50bcfb54bd5361b2f281c

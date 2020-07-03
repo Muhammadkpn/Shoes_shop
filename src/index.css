@@ -1,6 +1,5 @@
 *{
     padding: 0px; margin: 0px; 
-<<<<<<< HEAD
     box-sizing: border-box;
     font-family: 'Roboto';
 }
@@ -11,6 +10,4 @@ transition: transform .2s;
 
 .card-box:hover {
 transform: scale(1.05); 
-=======
->>>>>>> ea7d1397a5da6bd317f50bcfb54bd5361b2f281c
 }
