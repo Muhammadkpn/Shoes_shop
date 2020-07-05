@@ -86,24 +86,28 @@ class TransactionHistoryAdmin extends React.Component {
                     </Typography>
                     <Table size="small" aria-label="purchases">
                         <TableHead>
-                        <TableRow>
-                            <TableCell>Name</TableCell>
-                            <TableCell>Brand</TableCell>
-                            <TableCell>Color</TableCell>
-                            <TableCell>Size</TableCell>
-                            <TableCell>Quantity</TableCell>
-                            <TableCell>Price</TableCell>
-                        </TableRow>
+                            <TableRow>
+                                <TableCell>Image</TableCell>
+                                <TableCell>Name</TableCell>
+                                <TableCell>Brand</TableCell>
+                                <TableCell>Color</TableCell>
+                                <TableCell>Size</TableCell>
+                                <TableCell>Quantity</TableCell>
+                                <TableCell>Price</TableCell>
+                            </TableRow>
                         </TableHead>
                         <TableBody>
                         {item.products.map((item, index) => (
                             <TableRow key={index}>
-                            <TableCell component="th" scope="row">{item.name}</TableCell>
-                            <TableCell>{item.brand}</TableCell>
-                            <TableCell>{item.color}</TableCell>
-                            <TableCell>{item.size}</TableCell>
-                            <TableCell>{item.qty}</TableCell>
-                            <TableCell>Rp. {item.price.toLocaleString()}</TableCell>
+                                <TableCell>
+                                    <img src={item.images} width='100px' alt='product-image'/>
+                                </TableCell>
+                                <TableCell component="th" scope="row">{item.name}</TableCell>
+                                <TableCell>{item.brand}</TableCell>
+                                <TableCell>{item.color}</TableCell>
+                                <TableCell>{item.size}</TableCell>
+                                <TableCell>{item.qty}</TableCell>
+                                <TableCell>Rp. {item.price.toLocaleString()}</TableCell>
                             </TableRow>
                         ))}
                         </TableBody>
@@ -112,7 +116,7 @@ class TransactionHistoryAdmin extends React.Component {
                 </Collapse>
                 </TableCell>
             </TableRow>
-          </React.Fragment  >
+          </React.Fragment>
             )
         })
         
