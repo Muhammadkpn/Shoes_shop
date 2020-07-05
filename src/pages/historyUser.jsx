@@ -7,17 +7,23 @@ import {
     TableBody,
     TableRow,
     TableCell,
-    Card,
-    CardContent
+    IconButton,
+    Collapse,
+    Box,
+    Typography,
 } from '@material-ui/core'
 import NavbarMaterial from '../components/navbar'
 import Footer from '../components/footer'
+import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+
+import {History} from '../actions'
 
 class HistoryUser extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            history : []
+            history : [], open: false, selId: null
         }
     }
 
@@ -25,56 +31,92 @@ class HistoryUser extends React.Component {
         Axios.get(`http://localhost:2000/transaction_history?userID=${localStorage.getItem('id')}`)
         .then(res => {
             console.log(res.data)
-            this.setState({history : res.data})
+            // this.setState({history : res.data})
+            this.props.History(res.data)
         })
         .catch(err => console.log(err))
     }
 
+    handleOpen = (id) =>{
+        const {open} = this.state
+        this.setState({open: !open, selId: id})
+    }
+    
     renderTableHead = () => {
         return (
-            <TableHead>
-                <TableRow>
-                    <TableCell>No</TableCell>
-                    <TableCell>User ID</TableCell>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Total</TableCell>
-                    <TableCell>Products</TableCell>
-                </TableRow>
-            </TableHead>
+            <TableRow>
+            <TableCell>#</TableCell>
+            <TableCell>No</TableCell>
+            <TableCell>User ID</TableCell>
+            <TableCell>Username</TableCell>
+            <TableCell>Date</TableCell>
+            <TableCell>Total Quantity</TableCell>
+            <TableCell>Total Price</TableCell>
+            </TableRow>
         )
     }
 
-    renderTableBody = () => {
-        const {history} = this.state
-
-        return (history.map((item, index) => {
+    renderTableBody = () =>{
+        const {open, selId  } = this.state
+        return this.props.history.map((item, index)=>{
             return (
-                <TableRow key={item.id}>
-                    <TableCell>{index + 1}</TableCell>
-                    <TableCell>{item.userID}</TableCell>
-                    <TableCell>{item.date}</TableCell>
-                    <TableCell>Rp. {item.totalPrice.toLocaleString()},00</TableCell>
+            <React.Fragment>
+                <TableRow>
                     <TableCell>
-                        {
-                            item.products.map((value, index) => {
-                                return (
-                                    <Card style={styles.card} elevation={4}>
-                                        <CardContent>
-                                            <h4>{value.name}</h4>
-                                            <h5>Brand : {value.brand}</h5>
-                                            <h5>Color : {value.color}</h5>
-                                            <h5>Price : Rp. {value.price.toLocaleString()},00</h5>
-                                            <h5>Size : {value.size}</h5>
-                                            <h5>Quantity : {value.qty}</h5>
-                                        </CardContent>
-                                    </Card>
-                                )
-                            })
-                        }
+                        <IconButton aria-label="expand row" size="small" onClick={() => this.setState({open: !open, selId: index}) }>
+                        {selId === index ? open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon /> : <KeyboardArrowDownIcon />}
+                        </IconButton>
                     </TableCell>
+                    <TableCell>{index+1}</TableCell>
+                    <TableCell>{item.userID}</TableCell>
+                    <TableCell>{item.username}</TableCell>
+                    <TableCell>{item.date}</TableCell>
+                    <TableCell>{item.totalQty}</TableCell>
+                    <TableCell>Rp. {item.totalPrice.toLocaleString()}</TableCell>
                 </TableRow>
+                <TableRow key={index}>
+                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
+                <Collapse in={selId === index ? open : false } timeout="auto" unmountOnExit>
+                    <Box margin={1}>
+                    <Typography variant="h6" gutterBottom component="div">
+                        History Details
+                    </Typography>
+                    <Table size="small" aria-label="purchases">
+                        <TableHead>
+                            <TableRow>
+                                <TableCell>Image</TableCell>
+                                <TableCell>Name</TableCell>
+                                <TableCell>Brand</TableCell>
+                                <TableCell>Color</TableCell>
+                                <TableCell>Size</TableCell>
+                                <TableCell>Quantity</TableCell>
+                                <TableCell>Price</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                        {item.products.map((item, index) => (
+                            <TableRow key={index}>
+                                <TableCell>
+                                    <img src={item.images} width='100px' alt='product-image'/>
+                                </TableCell>
+                                <TableCell component="th" scope="row">{item.name}</TableCell>
+                                <TableCell>{item.brand}</TableCell>
+                                <TableCell>{item.color}</TableCell>
+                                <TableCell>{item.size}</TableCell>
+                                <TableCell>{item.qty}</TableCell>
+                                <TableCell>Rp. {item.price.toLocaleString()}</TableCell>
+                            </TableRow>
+                        ))}
+                        </TableBody>
+                    </Table>
+                    </Box>
+                </Collapse>
+                </TableCell>
+            </TableRow>
+          </React.Fragment>
             )
-        }))
+        })
+        
     }
     
     render () {
@@ -82,10 +124,14 @@ class HistoryUser extends React.Component {
             <div style={styles.root}>
                 <NavbarMaterial/>
                 <div style={styles.container}>
-                    <h1 style={styles.title}>{this.props.username}'s Transaction History</h1>
+                    <h1 style={styles.title}>Transaction History {this.props.username}'s</h1>
                     <Table style={styles.table}>
-                        {this.renderTableHead()}
-                        <TableBody>{this.renderTableBody()}</TableBody>
+                        <TableHead>
+                            {this.renderTableHead()}
+                        </TableHead>
+                        <TableBody>
+                            {this.renderTableBody()}
+                        </TableBody>
                     </Table>
                 </div>
                 <Footer/>
@@ -94,35 +140,36 @@ class HistoryUser extends React.Component {
     }
 }
 
-const styles = {
-    root : {
-        minHeight : '100vh',
-        backgroundColor : '#f2f2f2',
-        paddingTop : '90px',
+const styles={
+    root: {
+        minHeight: '100vh',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'space-between',
+        justifyContent: 'flex-end',
+        backgroundColor: '#f2f2f2'
     },
     container:{
-        margin: '0 2% 2% 2%'
+        minHeight: 'calc(100vh - 160px)',
+        width: '70%',
+        margin: '90px auto 30px auto',
     },
-    title : {
-        margin : '2% 0px',
-        textAlign: 'center'
+    title:{
+        textAlign: 'center',
+        margin:'1%'
     },
-    table : {
-        backgroundColor : 'white'
-    },
-    card:{
-        marginBottom: '1%'
+    table: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'white'
     }
 }
 
 const mapStateToProps = (state) => {
     return {
         role : state.user.role,
-        username : state.user.username
+        username : state.user.username,
+        history : state.history
     }
 }
 
-export default connect(mapStateToProps)(HistoryUser)
+export default connect(mapStateToProps, {History})(HistoryUser)
