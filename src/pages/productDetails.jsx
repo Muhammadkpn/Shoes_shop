@@ -57,7 +57,7 @@ class ProductDetails extends React.Component {
         }
 
         if(!this.props.id){
-            this.setState({toLogin: true})
+            this.setState({alert: true})
         } else {
             console.log('user already login')
             let cartData = {
@@ -70,10 +70,20 @@ class ProductDetails extends React.Component {
                 qty: total,
                 price: total * product.price
         }
+            // if(this.props.cart)
             console.log(cartData)
             let tempCart = this.props.cart
             console.log(tempCart)
+            tempCart.map((item,index) => {
+                    if(item.id === cartData.id && item.size === cartData.size){
+                        console.log(`item : ${item.id}, value: ${cartData.id}, index: ${index}`)
+                        cartData.qty += item.qty
+                        tempCart.splice(index, 1)
+                    }
+            })
+
             tempCart.push(cartData)
+                
             
             // update user cart in database
             Axios.patch(`http://localhost:2000/users/${this.props.id}`, { cart : tempCart })
@@ -92,12 +102,17 @@ class ProductDetails extends React.Component {
     }
 
     handleClose = () => {
-        this.setState({alert: false})
+        if(!this.props.id){
+            this.setState({alert: false, toLogin: true})
+        } else {
+            this.setState({alert: false})
+        }
     }
 
     render () {
         const { product, total, stock, toLogin, selId, alert, toCart, size } = this.state
 
+        
         console.log(size)
         if (toLogin) {
             return <Redirect to='/login'/>
@@ -121,7 +136,7 @@ class ProductDetails extends React.Component {
                     <Slider {...settings} style={styles.slider}>
                             {(product.images? product.images : []).map(item => {
                                 return (
-                                    <img src={item} height='500px' style={styles.content} alt='product-image'/>
+                                    <img src={item} height='460px' style={styles.content} alt='product-image'/>
                                 )
                             })}
                     </Slider>
@@ -199,7 +214,7 @@ class ProductDetails extends React.Component {
                                         <DialogTitle id="alert-dialog-slide-title">{"⚠ Warning !"}</DialogTitle>
                                         <DialogContent>
                                         <DialogContentText id="alert-dialog-slide-description">
-                                            {toLogin? 'You are not logged in. Please Log in to buy some item' : 'Please choose your size, look at the stock if its avaiable, and input total or quantity min = 1.'}
+                                            {!this.props.id ? 'You are not logged in. Please Log in to buy some item' : 'Please choose your size, look at the stock if its avaiable, and input total or quantity min = 1.'}
                                         </DialogContentText>
                                         </DialogContent>
                                         <DialogActions>
@@ -231,10 +246,10 @@ const styles = {
         alignItems: 'center',
     },
     container: {
-        height: `calc(100vh - 90px)`,
+        height: `calc(100vh - 220px)`,
         width: '80vw',
         backgroundColor: '#f2f2f2',
-        margin: '110px 50px 30px 50px', 
+        margin: '120px 50px 30px 50px', 
         display: 'flex',
     },
     info : {
@@ -259,21 +274,15 @@ const styles = {
         alignItems: 'center',
     },
     content : {
-        // backgroundRepeat : 'no-repeat',
-        // backgroundSize : 'cover',
-        // height : '100vh',
-        // width : '100%',
-        // display: 'flex',
-        // justifyContent: 'center',
-        // alignItems: 'center',
-        padding: '50px'
+        padding: '50px',
     },
     contentLeft:{
         // display: 'flex',
         // flexDirection: 'column'
     },
     containerRight:{
-        padding: '2%'
+        padding: '2%',
+        overflow: 'scroll'
     },
     totalInfo:{
         margin : '0px 2%'
