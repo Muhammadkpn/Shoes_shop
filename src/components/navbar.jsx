@@ -2,14 +2,90 @@ import React from "react";
 import {
   AppBar,
   Toolbar,
+  IconButton,
+  Badge,
+  Typography,
+  Popover,
+  Paper,
+  Menu,
+  Divider,
+  MenuItem,
+  Card
 } from "@material-ui/core";
 import ShoppingCartIcon from "@material-ui/icons/ShoppingCart";
 import { Link } from "react-router-dom";
 import Profile from "./profile"
 import {LOGO} from '../assets'
 
+import { connect } from 'react-redux'
+
 class NavbarMaterial extends React.Component {
+    constructor (props) {
+      super(props)
+      this.state = {
+          anchorEl : null,
+          open: false,
+          logOutError: false
+      }
+    }
+  handlePopoverOpen = (event) => {
+    if(this.props.role === 'user')
+      return this.setState({anchorEl : event.currentTarget, open: !this.state.open})
+  };
+
+  handlePopoverClose = () => {
+    this.setState({anchorEl : null, open: false})
+  };
+
+  renderPopOver = () =>{
+    return(
+      <Popover
+        id="mouse-over-popover"
+        borderRadius = '50%'
+        open={Boolean(this.state.anchorEl)}
+        anchorEl={this.state.anchorEl}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        onClose={this.handlePopoverClose}
+        disableRestoreFocus
+      >
+        <div style={styles.popoverTitle}>
+          <Typography >Total({this.props.cart.map(item => item.qty).reduce((a,b) => a + b, 0)})</Typography>
+        </div>
+        <div style={styles.popoverContent}>
+          {(this.props.cart).map(item =>{
+          return(
+            <div>
+              <div>
+                <MenuItem>
+                  <img src={item.images} width='70px'/>
+                </MenuItem>
+              </div>
+              <div>
+                <MenuItem>{item.name}</MenuItem>
+                <MenuItem>{item.qty} item</MenuItem>
+                <MenuItem>Rp. {item.price.toLocaleString()}</MenuItem>
+              {/* <Divider/> */}
+              </div>
+            </div>
+          )
+        })}
+        </div>
+    </Popover>
+    )
+  }
   render() {
+    let count = 0
+    this.props.cart.map((item) => {
+        count += item.price
+    })
+
     return (
         <AppBar position="fixed" style={styles.root} elevation={0}>
           <Toolbar style={styles.toolbar}>
@@ -21,8 +97,17 @@ class NavbarMaterial extends React.Component {
             </div>
             <div style={styles.rightContent}>
               <div style={styles.cart}>
-                <ShoppingCartIcon/>
-                <h6 style={styles.cartTotal}>Rp. 0</h6>
+                <IconButton 
+                  aria-label="cart"
+                  onClick={(e) => this.handlePopoverOpen(e)}
+                  > 
+                  <Badge badgeContent={this.props.cart.map(item => item.qty).reduce((a,b) => a + b, 0)} color="primary">
+                    <ShoppingCartIcon
+                    />
+                  </Badge>
+                </IconButton>
+                {this.renderPopOver()}
+                <h6 style={styles.cartTotal}>Rp. {count.toLocaleString()}</h6>
               </div>
               <Profile/>
             </div>
@@ -82,7 +167,42 @@ const styles = {
   cartTotal : {
       fontSize : 16,
       marginLeft : 15
+  },
+  popover:{
+    width: '500px'
+  },
+  popoverTitle: {
+    width: '400px', 
+    zIndex: 3, 
+    position: 'fixed', 
+    backgroundColor: '#f2f2f2', 
+    borderBottom: '1px solid gray', 
+    display: 'flex',
+    justifyContent: 'space-between',
+    padding: '10px',
+  },
+  popoverContent: {
+    width:400, 
+    height: 300, 
+    marginTop: 40,  
+    overflowX:'hidden'
+},
+  linkCartTitle: {
+    textDecoration: 'none',
+    color: 'blue'
+  },
+  cartPopOver:{
+    display: 'flex',
+    flexDirection: 'column',
+    width: '300px'
+  },
+}
+
+const mapStateToProps = (state) => {
+  return {
+    cart: state.user.cart,
+    role : state.user.role
   }
 }
 
-export default NavbarMaterial;
+export default connect(mapStateToProps)(NavbarMaterial);
