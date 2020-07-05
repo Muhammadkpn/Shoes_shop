@@ -7,9 +7,16 @@ import {
   CardContent,
   Button,
   Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions
 } from "@material-ui/core";
-import {Link} from 'react-router-dom'
+import {Link, Redirect} from 'react-router-dom';
+import { connect } from 'react-redux'
 import FavoriteIcon from '@material-ui/icons/Favorite';
+import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
 
 
@@ -17,15 +24,37 @@ class Products extends React.Component{
   constructor(props){
     super(props)
       this.state = { 
-        open: false
+        alert: false,
+        open: false, 
+        wishlist: [false, false, false, false, false, false, false, false, false, false, false, false], 
+        toLogin: false
     }
   }
 
-  handleBuyNow = (id) =>{
-    this.setState({open: !this.state.open})
+  handleWishlist = (id) => {
+    const { wishlist } = this.state
+    let tempWish = wishlist
+    
+    if(this.props.id){
+      tempWish[id] = !tempWish[id]
+      this.setState({wishlist: tempWish, alert: false})
+    } else {
+      this.setState({alert: true})
+    }
+  }
+
+  handleClose = () => {
+    this.setState({alert: false, toLogin: true})
   }
 
   render(){
+    const {wishlist, toLogin, open, alert} = this.state
+
+    if (toLogin) {
+      return <Redirect to='/login'/>
+    }
+
+
     return (
       <div style={styles.root}>
         <h1 style={styles.title}>Products</h1>
@@ -61,13 +90,33 @@ class Products extends React.Component{
                     // variant = 'containedSecondary'
                     size="small" 
                     color="secondary"
-                    startIcon={<FavoriteIcon/>}>
+                    onClick = {() => this.handleWishlist(index)}
+                    startIcon={wishlist[index] ? <FavoriteIcon/> : <FavoriteBorderIcon/>}
+                  >
                     Wish List
                   </Button>
                 </CardActions>
               </Card>
             );
           })}
+        <Dialog
+            open={alert}
+            onClose={this.handleClose}
+            aria-labelledby="alert-dialog-slide-title"
+            aria-describedby="alert-dialog-slide-description"
+        >
+            <DialogTitle id="alert-dialog-slide-title">{"⚠ Warning !"}</DialogTitle>
+            <DialogContent>
+            <DialogContentText id="alert-dialog-slide-description">
+              You are not logged in. Please Log in to input some item to your wishlist
+            </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+            <Button onClick={this.handleClose} color="primary">
+                Ok
+            </Button>
+            </DialogActions>
+        </Dialog>
         </div>
       </div>
     );
@@ -118,5 +167,9 @@ btnBuy:{
   textDecoration: 'none'
 }
 };
-
-export default Products;
+const mapStateToProps = (state) => {
+  return {
+    id: state.user.id
+  }
+}
+export default connect(mapStateToProps)(Products);
