@@ -81,7 +81,7 @@ class Register extends React.Component {
         if(username === ''){
             this.setState({errorTextUsername: 'Username must be at least 6 characters combination of letters and numbers', errorUsername: true})
         } else if(this.state.users.filter(item=>item.username === username).length>0){
-            this.setState({errorTextUsername: 'Username is already use', errorUsername: true})
+            this.setState({errorTextUsername: 'Username is already used', errorUsername: true})
         } else if(letterTest && numberTest && symbolTest && minUser){
             this.setState({errorTextUsername: 'Correct username', errorUsername: false})
         } else {
@@ -97,7 +97,7 @@ class Register extends React.Component {
         if(email === ''){
             this.setState({errorTextEmail: 'Example: yourmail@domain.com', errorEmail: true})
         } else if(this.state.users.filter(item=>item.email === email).length>0){
-            this.setState({errorTextEmail: 'Email is already use', errorEmail: true})
+            this.setState({errorTextEmail: 'Email is already used', errorEmail: true})
         } else if(emailTest){
             this.setState({errorTextEmail: 'Correct email', errorEmail: false})
         } else {

@@ -11,20 +11,33 @@ import {
     Collapse,
     Box,
     Typography,
-
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogTitle,
+    DialogContentText,
+    Button,
+    Select,
+    InputLabel,
+    FormControl,
+    MenuItem,
 } from '@material-ui/core'
-import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import ErrorIcon from '@material-ui/icons/Error';
 
 import Axios from 'axios'
 import {connect} from 'react-redux'
-
 import {History} from '../../actions'
+
+
 class TransactionHistoryAdmin extends React.Component {
     constructor(props){
         super(props)
         this.state = {
-            history: [], open: false, selId: null
+            history: [], 
+            open: false, 
+            selId: null,
+            sort: "",
+            order:""
         }
     }
 
@@ -37,96 +50,172 @@ class TransactionHistoryAdmin extends React.Component {
             this.props.History(res.data)
         })
         .catch(err => console.log(err))
+
+    }
+
+    getHistoryData = () =>{
+        const { sort, order } = this.state
+
+        Axios.get(`http://localhost:2000/transaction_history?_sort=${sort}&_order=${order}`)
+        .then(res => {
+            console.log(res.data)
+
+            //invoke action history when we going to transaction admin page
+            this.props.History(res.data)
+        })
+        .catch(err => console.log(err))
+
+    }
+
+    handleSort = (event) =>{
+        let sort = event.target.value
+        this.setState({sort: sort})
+    }
+
+    handleOrder = (event) =>{
+        let order = event.target.value
+        this.setState({order: order})
     }
 
     handleOpen = (id) =>{
-        const {open} = this.state
-        this.setState({open: !open, selId: id})
+        const {open, alert} = this.state
+        // this.setState({open: !open, selId: id})
+        this.setState({selId: id, alert: true})
+    }
+
+    handleClose = () => {
+        this.setState({alert : false})
+    }
+
+    handleSelect = (event) =>{
+        // this.setState({sort: this.sort.value})
+        //         console.log(this.state.sort)
+        console.log(event.target.value)
+    }
+    
+    renderTableDialog = () =>{
+        const { selId } = this.state
+        return (
+            <Table size="small" aria-label="purchases">
+                <TableHead>
+                    <TableRow>
+                        <TableCell>No</TableCell>
+                        <TableCell>Image</TableCell>
+                        <TableCell>Name</TableCell>
+                        <TableCell>Brand</TableCell>
+                        <TableCell>Color</TableCell>
+                        <TableCell>Size</TableCell>
+                        <TableCell>Quantity</TableCell>
+                        <TableCell>Price</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {selId !== null ? 
+                this.props.history[selId].products.map((item, index) => (
+                    <TableRow key={index}>
+                        <TableCell>{index+1}</TableCell>
+                        <TableCell>
+                            <img src={item.images} width='100px' alt='product-image'/>
+                        </TableCell>
+                        <TableCell component="th" scope="row">{item.name}</TableCell>
+                        <TableCell>{item.brand}</TableCell>
+                        <TableCell>{item.color}</TableCell>
+                        <TableCell>{item.size}</TableCell>
+                        <TableCell>{item.qty}</TableCell>
+                        <TableCell>Rp. {item.price.toLocaleString()}</TableCell>
+                    </TableRow>
+                ))
+                :
+                null
+            }
+                </TableBody>
+            </Table>
+        )
     }
 
     renderTableHead = () =>{
         return (
             <TableRow>
-                <TableCell>#</TableCell>
                 <TableCell>No</TableCell>
                 <TableCell>User ID</TableCell>
                 <TableCell>Username</TableCell>
                 <TableCell>Date</TableCell>
                 <TableCell>Total Quantity</TableCell>
                 <TableCell>Total Price</TableCell>
-                {/* <TableCell>Details</TableCell> */}
+                <TableCell>Action</TableCell>
             </TableRow>
         )
     }
     
     renderTableBody = () =>{
-        const {open, selId  } = this.state
+        const {open, selId, alert } = this.state
         return this.props.history.map((item, index)=>{
             return (
-            <React.Fragment>
                 <TableRow>
-                    <TableCell>
-                        <IconButton aria-label="expand row" size="small" onClick={() => this.setState({open: !open, selId: index}) }>
-                        {selId === index ? open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon /> : <KeyboardArrowDownIcon />}
-                        </IconButton>
-                    </TableCell>
                     <TableCell>{index+1}</TableCell>
                     <TableCell>{item.userID}</TableCell>
                     <TableCell>{item.username}</TableCell>
                     <TableCell>{item.date}</TableCell>
                     <TableCell>{item.totalQty}</TableCell>
                     <TableCell>Rp. {item.totalPrice.toLocaleString()}</TableCell>
+                    <TableCell>
+                        <Button
+                            variant="outlined"
+                            color="primary"
+                            startIcon={<ErrorIcon/>}
+                            onClick={() => this.handleOpen(index)}
+                        >
+                            Details
+                        </Button>
+                    </TableCell>
                 </TableRow>
-                <TableRow key={index}>
-                <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={7}>
-                <Collapse in={selId === index ? open : false } timeout="auto" unmountOnExit>
-                    <Box margin={1}>
-                    <Typography variant="h6" gutterBottom component="div">
-                        History Details
-                    </Typography>
-                    <Table size="small" aria-label="purchases">
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>Image</TableCell>
-                                <TableCell>Name</TableCell>
-                                <TableCell>Brand</TableCell>
-                                <TableCell>Color</TableCell>
-                                <TableCell>Size</TableCell>
-                                <TableCell>Quantity</TableCell>
-                                <TableCell>Price</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                        {item.products.map((item, index) => (
-                            <TableRow key={index}>
-                                <TableCell>
-                                    <img src={item.images} width='100px' alt='product-image'/>
-                                </TableCell>
-                                <TableCell component="th" scope="row">{item.name}</TableCell>
-                                <TableCell>{item.brand}</TableCell>
-                                <TableCell>{item.color}</TableCell>
-                                <TableCell>{item.size}</TableCell>
-                                <TableCell>{item.qty}</TableCell>
-                                <TableCell>Rp. {item.price.toLocaleString()}</TableCell>
-                            </TableRow>
-                        ))}
-                        </TableBody>
-                    </Table>
-                    </Box>
-                </Collapse>
-                </TableCell>
-            </TableRow>
-          </React.Fragment>
             )
         })
         
     }
     render() {
+        const {alert} = this.state
         return(
             <div style={styles.root}>
                 <NavbarMaterial/>
                 <div style={styles.container}>
-                    <h1 style={styles.title}>Transaction History All User</h1>
+                    <div style={{display: 'flex', justifyContent: 'space-between', marginTop: '2%'}}>
+                        <h1 style={styles.title}>Transaction History All User</h1>
+                        <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+                            <h3>Sort by</h3>
+                            <FormControl variant="outlined">
+                                <InputLabel id="demo-simple-select-label">Sort</InputLabel>
+                                <Select
+                                labelId="demo-simple-select-label"
+                                label='Sort'
+                                id="select"
+                                inputRef={(sort) => this.sort = sort}
+                                onChange={this.handleSort}
+                                >
+                                <MenuItem value="userID">ID</MenuItem>
+                                <MenuItem value="date">DATE</MenuItem>
+                                <MenuItem value="totalPrice">TOTAL</MenuItem>
+                                </Select>
+                            </FormControl>
+                            <FormControl variant="outlined">
+                                <InputLabel id="demo-simple-select-label">Order</InputLabel>
+                                <Select
+                                labelId="demo-simple-select-label"
+                                label='Order'
+                                id="demo-simple-select"
+                                onChange={this.handleOrder}
+                                >
+                                <MenuItem value="asc">ASC</MenuItem>
+                                <MenuItem value="desc">DESC</MenuItem>
+                                </Select>
+                            </FormControl>
+                            <Button
+                                onClick={() => this.getHistoryData()}
+                                >
+                                SUBMIT
+                            </Button>
+                        </div>
+                    </div>
                     <Table style={styles.table}>
                         <TableHead>
                             {this.renderTableHead()}
@@ -135,6 +224,27 @@ class TransactionHistoryAdmin extends React.Component {
                             {this.renderTableBody()}
                         </TableBody>
                     </Table>
+                    <Dialog
+                        open={alert}
+                        maxWidth='xl'
+                        onClose={this.handleClose}
+                        aria-labelledby="alert-dialog-title"
+                        aria-describedby="alert-dialog-description"
+                    >
+                        <DialogTitle id="alert-dialog-title">{"History Details"}</DialogTitle>
+                        <DialogContent>
+                            {/* <DialogContentText id="alert-dialog-description">
+                                Are you sure to confrim this payment? <br></br>
+                                Please input your password!
+                            </DialogContentText> */}
+                            {this.renderTableDialog()}
+                        </DialogContent>
+                        <DialogActions>
+                        <Button onClick={this.handleClose} color="primary" autoFocus>
+                            OK
+                        </Button>
+                        </DialogActions>
+                    </Dialog>
                 </div>
                 <Footer/>
             </div>
@@ -172,5 +282,3 @@ const mapStateToProps = (state) =>{
 }
 
 export default connect(mapStateToProps, { History })(TransactionHistoryAdmin)
-
-// export default TransactionHistoryAdmin

@@ -16,7 +16,7 @@ import {
     DialogActions,
     DialogContent,
     DialogContentText,
-    DialogTitle
+    DialogTitle,
 } from '@material-ui/core';
 
 import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
@@ -68,7 +68,8 @@ class ProductDetails extends React.Component {
                 color: product.colour,
                 size: size,
                 qty: total,
-                price: total * product.price
+                price: total * product.price,
+                rating: 0
         }
             // if(this.props.cart)
             console.log(cartData)

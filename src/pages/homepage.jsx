@@ -51,7 +51,7 @@ class HomePage extends React.Component{
             <div>
                 <NavbarMaterial/>
                 <CarouselBar dataSlider ={this.props.slide} />
-                <Products dataProducts = {this.state.products}/>
+                <Products/>
                 <Footer/>
             </div>
         )

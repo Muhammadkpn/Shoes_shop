@@ -47,7 +47,7 @@ if (/^([a-z]|[0-9]|[A-Z])+([\.-]?([a-z]|[0-9]|[A-Z])+)*@([a-z]){2,}([\.]?[a-z]{2
   }
 }
 
-ValidateEmail('9.ammadkpnddgm@ddwd')
+// ValidateEmail('9.ammadkpnddgm@ddwd')
 
 
 let users = [
@@ -88,4 +88,42 @@ let users = [
   }
 ]
 
-console.log(users.filter(item => item.username == 'admin'))
+// console.log(users.filter(item => item.username == 'admin'))
+
+let tempCart = [
+  {
+    "id": 8,
+    "images": "https://kickz.akamaized.net/en/media/images/p/1200/JORDAN_WESTBROOK_ONE_TAKE-WHITE_WHITE_BLACK_RAGE_GREEN-1.jpg",
+    "name": "JORDAN WESTBROOK ONE TAKE",
+    "brand": "JORDAN",
+    "color": "WHITE/WHITE-BLACK-RAGE GREEN",
+    "size": 40,
+    "qty": 3,
+    "price": 3000000
+  },
+  {
+    "id": 12,
+    "images": "https://kickz.akamaized.net/en/media/images/p/1200/vans-UA_Classic_Slip_On_Breast_Cancer-Breast_Cancer_nude_check_true_white-1.jpg",
+    "name": "VANS UA CLASSIC SLIP-ON (BREAST CANCER)",
+    "brand": "VANS",
+    "color": "cadmium yellow/tidepool",
+    "size": 41,
+    "qty": 1,
+    "price": 543786
+  },
+]
+
+// for(let i = 0 ; i < tempCart.length ; i++){
+//     for(let j = 0 ; j < tempCart.length ; j++){
+//         if(tempCart[j] > tempCart[j+1]){
+//             let count = tempCart[j]
+//             tempCart[j] = tempCart[j+1]
+//             tempCart[j+1] = count
+//         }
+//     }
+// }
+// console.log("after sort: ",tempCart)
+// console.log("after sort: ",tempCart.sort((a,b) => a.color > b.color ? -1 : 1))
+// console.log("after sort: ", tempCart.sort((a,b) => (a.brand > b.brand) ? 1 : ((b.brand > a.brand) ? -1 : 0)))
+let a = [6,5,1,2,1,6]
+console.log(a.sort((a,b) => a < b ? -1 :  a > b ? 1 : 0 ))

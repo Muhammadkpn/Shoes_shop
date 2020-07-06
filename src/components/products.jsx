@@ -11,13 +11,23 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  OutlinedInput,
+  InputLabel,
+  Select,
+  MenuItem,
+  Box,
+  FormControl
 } from "@material-ui/core";
+import Rating from '@material-ui/lab/Rating';
 import {Link, Redirect} from 'react-router-dom';
 import { connect } from 'react-redux'
+import { getProduct } from "../actions";
+import Axios from 'axios'
 import FavoriteIcon from '@material-ui/icons/Favorite';
 import FavoriteBorderIcon from '@material-ui/icons/FavoriteBorder';
 import ShoppingCartIcon from '@material-ui/icons/ShoppingCart';
+
 
 
 class Products extends React.Component{
@@ -27,9 +37,43 @@ class Products extends React.Component{
         alert: false,
         open: false, 
         wishlist: [false, false, false, false, false, false, false, false, false, false, false, false], 
-        toLogin: false
+        toLogin: false,
+        data: [],
+        category: "",
+        price: "",
     }
   }
+    componentDidMount() {
+      this.getProductData("");
+    }
+
+    getProductData = (input) => {
+      Axios.get(`http://localhost:2000/products?q=${input}`)
+        .then((res) => this.props.getProduct(res.data))
+        .catch((err) => console.log(err));
+    };
+
+    handleCategory = (event) => {
+      console.log(event.target.value);
+      let cat = event.target.value;
+      this.setState({ category: cat });
+      this.getProductData(cat);
+    };
+    handleSearch = () => {
+      let searchInput = this.search.value;
+      this.getProductData(searchInput);
+    };
+    handlePrice = (event) => {
+      console.log(event.target.value);
+      let sortPrice = event.target.value;
+      let searchInput = this.search.value;
+      this.setState({ price: sortPrice });
+      Axios.get(
+        `http://localhost:2000/products?q=${searchInput}&_sort=price&_order=${sortPrice}`
+      )
+        .then((res) => this.props.getProduct(res.data))
+        .catch((err) => console.log(err));
+    };
 
   handleWishlist = (id) => {
     const { wishlist } = this.state
@@ -48,7 +92,7 @@ class Products extends React.Component{
   }
 
   render(){
-    const {wishlist, toLogin, open, alert} = this.state
+    const {wishlist, toLogin, open, alert, category, price} = this.state
 
     if (toLogin) {
       return <Redirect to='/login'/>
@@ -58,8 +102,37 @@ class Products extends React.Component{
     return (
       <div style={styles.root}>
         <h1 style={styles.title}>Products</h1>
+        {/* <div style={{display: 'flex'}}>
+          <OutlinedInput
+            inputRef={(search) => (this.search = search)}
+          ></OutlinedInput>
+          <Button variant="contained" type="button" onClick={this.handleSearch}>
+            Search
+          </Button>
+          <Typography variant="h6">Filter Products</Typography>
+          <FormControl>
+            <InputLabel id="category">Category</InputLabel>
+            <Select
+              labelId="category"
+              // value={category}
+              onChange={this.handleCategory}
+              >
+              <MenuItem value="Men">Men</MenuItem>
+              <MenuItem value="Women">Women</MenuItem>
+              <MenuItem value="sport">Sport</MenuItem>
+              <MenuItem value="converse">Converse</MenuItem>
+              <MenuItem value="sandals">Sandals</MenuItem>
+            </Select>
+          </FormControl>
+          <Typography variant="h6">Sort Products by Price</Typography>
+          <InputLabel id="price">Sort</InputLabel>
+          <Select labelId="price" value={price} onChange={this.handlePrice}>
+            <MenuItem value="asc">From Low to High</MenuItem>
+            <MenuItem value="desc">From High to Low</MenuItem>
+          </Select>
+        </div> */}
         <div style={styles.cardContainer}>
-          {this.props.dataProducts.map((item,index) => {
+          {this.props.product.map((item,index) => {
             return (
               <Card  className = 'card-box' style={styles.card}>
                 <CardActionArea style={styles.contentArea}>
@@ -75,6 +148,18 @@ class Products extends React.Component{
                     >
                       {`Rp. ${item.price.toLocaleString()}, 00`}
                     </Typography>
+                    <Box
+                        component="fieldset"
+                        mb={3}
+                        borderColor="transparent"
+                    >
+                        <Rating
+                            name="read-only"
+                            readOnly
+                            value={0}
+                            precision={0.5}
+                        />
+                    </Box>
                   </CardContent>
                 </CardActionArea>
                 <CardActions style={styles.contentActions}>
@@ -169,7 +254,8 @@ btnBuy:{
 };
 const mapStateToProps = (state) => {
   return {
+    product: state.product,
     id: state.user.id
   }
 }
-export default connect(mapStateToProps)(Products);
+export default connect(mapStateToProps, {getProduct})(Products);

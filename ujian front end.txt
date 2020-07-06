@@ -1,0 +1,5 @@
+Soal Ujian
+1. verifikasi, validasi input
+2. json sever, searching, sorting
+3-4. komponen material ui
+5. crud redux

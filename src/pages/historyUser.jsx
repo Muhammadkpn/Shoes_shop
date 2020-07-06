@@ -11,7 +11,14 @@ import {
     Collapse,
     Box,
     Typography,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogContentText,
+    DialogActions,
+    Button
 } from '@material-ui/core'
+import Rating from '@material-ui/lab/Rating';
 import NavbarMaterial from '../components/navbar'
 import Footer from '../components/footer'
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
@@ -23,7 +30,16 @@ class HistoryUser extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            history : [], open: false, selId: null
+            history : [], 
+            open: false, 
+            selId: null,
+            read: false,
+            rate: 0,
+            alert: false,
+            idProduct: null,
+            date : null,
+            selHist: null,
+            selProd: null
         }
     }
 
@@ -56,8 +72,76 @@ class HistoryUser extends React.Component {
         )
     }
 
+    buttonRating = (index, id) => {
+        let idProduct = this.props.history[index].products[id].id
+        let dateProduct = this.props.history[index].date
+        console.log(this.props.product)
+        console.log(index, id);
+        console.log(idProduct)
+
+        this.props.history.map((item, idx) => {
+            if(item.id === index+1){
+                console.log(item.products[id])
+            }
+        })
+
+        this.setState({ alert: true, idProduct: idProduct, date : dateProduct, selHist: index, selProd: id});
+    }
+
+    handleRating = (newvalue) => {
+        console.log(newvalue)
+        this.setState({ rate: newvalue })
+    }
+
+    handleConfirm = () => {
+        const { rate, selHist, selProd } = this.state
+        // console.log(tempHistory)
+        
+        let tempHistory = this.props.history[selHist].products
+        tempHistory[selProd].rating = rate
+        console.log('tempHistory', tempHistory)
+        Axios.patch(`http://localhost:2000/transaction_history?id=${selHist+1}`, {products: tempHistory})
+        .then(res => { 
+            console.log(res.data)
+            Axios.get(`http://localhost:2000/transaction_history?id=${selHist+1}`)
+            .then(res => { 
+                // this.props.History(res.data)
+                // this.setState({ alert: false})
+                this.setState({ alert: false})
+                this.props.History(res.data)
+            console.log(res.data)
+            })
+        })
+        .catch(err => console.log(err))
+
+        // this.props.history.map((item, idx) => {
+        //     if(item.id === selHist+1){
+        //         // tempHistory.splice(selProd, 1, )
+        //         console.log(item.products[selProd])
+        //     }
+        // })
+
+
+
+        // Axios.get(`http://localhost:2000/products/${this.state.idProduct}`)
+        // .then(res => {
+        //     console.log(res.data.rating)
+        //     let total = res.data.rating
+        //     total.push(rate)
+        //         console.log(total)
+        //         Axios.patch(`http://localhost:2000/products/${this.state.idProduct}`, { rating: total })
+        //         .then(res => console.log(res.data))
+        //             .catch(err => console.log(err))
+                    
+
+
+        //         this.setState({ alert: false})
+        //     })
+        //     .catch(err => console.log(err))
+    }
+    
     renderTableBody = () =>{
-        const {open, selId  } = this.state
+        const {open, selId,rate, idProduct, date, selHist, selProd} = this.state
         return this.props.history.map((item, index)=>{
             return (
             <React.Fragment>
@@ -91,20 +175,41 @@ class HistoryUser extends React.Component {
                                 <TableCell>Size</TableCell>
                                 <TableCell>Quantity</TableCell>
                                 <TableCell>Price</TableCell>
+                                <TableCell>Rating</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                        {item.products.map((item, index) => (
-                            <TableRow key={index}>
+                        {item.products.map((value, id) => (
+                            <TableRow key={id}>
                                 <TableCell>
-                                    <img src={item.images} width='100px' alt='product-image'/>
+                                    <img src={value.images} width='100px' alt='product-image'/>
                                 </TableCell>
                                 <TableCell component="th" scope="row">{item.name}</TableCell>
-                                <TableCell>{item.brand}</TableCell>
-                                <TableCell>{item.color}</TableCell>
-                                <TableCell>{item.size}</TableCell>
-                                <TableCell>{item.qty}</TableCell>
-                                <TableCell>Rp. {item.price.toLocaleString()}</TableCell>
+                                <TableCell>{value.brand}</TableCell>
+                                <TableCell>{value.color}</TableCell>
+                                <TableCell>{value.size}</TableCell>
+                                <TableCell>{value.qty}</TableCell>
+                                <TableCell>Rp. {value.price.toLocaleString()}</TableCell>
+                                {value.rating > 0 ?
+                                <TableCell>
+                                    <Box
+                                        component="fieldset"
+                                        mb={3}
+                                        borderColor="transparent"
+                                    >
+                                        <Rating
+                                            name="read-only"
+                                            readOnly
+                                            value={value.rating}
+                                            precision={0.5}
+                                        />
+                                    </Box>
+                                </TableCell>
+                                :
+                                <TableCell>
+                                    <Button onClick={() => this.buttonRating(index, id) } color='primary' variant='outlined'>Rate</Button>
+                                </TableCell>
+                                }
                             </TableRow>
                         ))}
                         </TableBody>
@@ -118,8 +223,10 @@ class HistoryUser extends React.Component {
         })
         
     }
-    
+
+
     render () {
+        const { read, rate, alert } = this.state
         return (
             <div style={styles.root}>
                 <NavbarMaterial/>
@@ -133,6 +240,40 @@ class HistoryUser extends React.Component {
                             {this.renderTableBody()}
                         </TableBody>
                     </Table>
+                    <Dialog
+                    open={alert}
+                    onClose={() => this.setState({ alert: false })}
+                    aria-labelledby="alert-dialog-title"
+                    aria-describedby="alert-dialog-description"
+                >
+                    <DialogTitle id="form-dialog-title">Rate our products</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText id="alert-dialog-description">
+                            {'Give us a feedback!'}
+                        </DialogContentText>
+                        <Box
+                            component="fieldset"
+                            mb={3}
+                            borderColor="transparent"
+                        >
+                            <Rating
+                                name="simple-controlled"
+                                value={rate}
+                                onChange={(event, newvalue) =>
+                                    this.handleRating(newvalue)
+                                }
+                            />
+                        </Box>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button onClick={ () => this.setState({ alert: false })} color="primary">
+                            Cancel
+                    </Button>
+                        <Button onClick={this.handleConfirm} color="primary" autoFocus>
+                            Confirm
+                    </Button>
+                    </DialogActions>
+                </Dialog>
                 </div>
                 <Footer/>
             </div>

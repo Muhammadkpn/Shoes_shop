@@ -10,7 +10,7 @@ import {
   Menu,
   Divider,
   MenuItem,
-  Card
+  Button
 } from "@material-ui/core";
 import ShoppingCartIcon from "@material-ui/icons/ShoppingCart";
 import { Link } from "react-router-dom";
@@ -55,28 +55,42 @@ class NavbarMaterial extends React.Component {
         onClose={this.handlePopoverClose}
         disableRestoreFocus
       >
-        <div style={styles.popoverTitle}>
-          <Typography >Total({this.props.cart.map(item => item.qty).reduce((a,b) => a + b, 0)})</Typography>
-        </div>
-        <div style={styles.popoverContent}>
-          {(this.props.cart).map(item =>{
-          return(
-            <div>
-              <div>
-                <MenuItem>
-                  <img src={item.images} width='70px'/>
-                </MenuItem>
+        {this.props.cart.length !== 0 ?
+        <>
+          <div style={styles.popoverTitle}>
+            <Typography >Total({this.props.cart.length})</Typography>
+          </div>
+          <div style={styles.popoverContent}>
+            {(this.props.cart).map(item =>{
+            return(
+              <div style={{display:'flex'}}>
+                <div style={{borderBottom: '1px solid gray'}}>
+                  <MenuItem>
+                    <img src={item.images} width='70px'/>
+                  </MenuItem>
+                </div>
+                <div style={{borderBottom: '1px solid gray', width: '100%'}}>
+                  <MenuItem>{item.name}</MenuItem>
+                  <MenuItem>{item.qty} item (Size: {item.size})</MenuItem>
+                  <MenuItem>Rp. {item.price.toLocaleString()}</MenuItem>
+                  
+                {/* <Divider/> */}
+                </div>
               </div>
-              <div>
-                <MenuItem>{item.name}</MenuItem>
-                <MenuItem>{item.qty} item</MenuItem>
-                <MenuItem>Rp. {item.price.toLocaleString()}</MenuItem>
-              {/* <Divider/> */}
-              </div>
-            </div>
-          )
-        })}
-        </div>
+            )
+          })}
+          </div>
+          <Link to='/cart' style={styles.linkCart}>
+            <MenuItem style={{backgroundColor:'#f2f2f2', textAlign:'center', display:'flex', justifyContent:'center'}}>
+                <Typography>
+                  Go to cart
+                </Typography>
+            </MenuItem>
+          </Link>
+        </>
+          :
+          <MenuItem>Cart is empty</MenuItem>
+          }
     </Popover>
     )
   }
@@ -101,7 +115,7 @@ class NavbarMaterial extends React.Component {
                   aria-label="cart"
                   onClick={(e) => this.handlePopoverOpen(e)}
                   > 
-                  <Badge badgeContent={this.props.cart.map(item => item.qty).reduce((a,b) => a + b, 0)} color="primary">
+                  <Badge badgeContent={this.props.cart.length} color="primary">
                     <ShoppingCartIcon
                     />
                   </Badge>
@@ -177,8 +191,7 @@ const styles = {
     position: 'fixed', 
     backgroundColor: '#f2f2f2', 
     borderBottom: '1px solid gray', 
-    display: 'flex',
-    justifyContent: 'space-between',
+    textAlign:'center',
     padding: '10px',
   },
   popoverContent: {
@@ -187,9 +200,9 @@ const styles = {
     marginTop: 40,  
     overflowX:'hidden'
 },
-  linkCartTitle: {
+  linkCart: {
     textDecoration: 'none',
-    color: 'blue'
+    color: 'black',
   },
   cartPopOver:{
     display: 'flex',
